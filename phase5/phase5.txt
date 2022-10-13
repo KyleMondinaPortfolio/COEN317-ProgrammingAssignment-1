@@ -1,0 +1,4 @@
+In this phase, I am focusing on cleaning the code from the last phase
+-> creating a sperate fucntion that calls to start the server
+-> creating a seperate function that serves the html files using fread
+-> having the server serve different types of files aside from html
