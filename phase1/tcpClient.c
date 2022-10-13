@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 void communicateWith(int sockfd){
 	char buff[80];

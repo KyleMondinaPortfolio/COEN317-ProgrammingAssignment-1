@@ -3,20 +3,23 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#define PORT 80
+#define MAX 8000
 
 void communicateWith(int connfd){
 	//function to communicate with the client
 
 	//connection buff
-	char buff[80];
+	char buff[MAX];
 	int n;
 	//infinite loop for chat
 	for (;;){
-		bzero(buff,80);
+		bzero(buff,MAX);
 		//read message from client and copy it in the buffer
 		read(connfd, buff, sizeof(buff));
-		printf("From Client: %s\t to client: ", buff);
-		bzero(buff,80);
+		printf("Client Request:\n%s\n", buff);
+		bzero(buff,MAX);
 		n = 0;
 		
 		//copy server message in the buffer
