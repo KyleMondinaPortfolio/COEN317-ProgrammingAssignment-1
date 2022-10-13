@@ -8,6 +8,44 @@
 #define MAX 8000
 #define BUFFER_SIZE 8000
 
+void spprint(){
+	FILE *ptr;
+	char ch;
+	ptr = fopen("test.txt", "r");
+	if (NULL == ptr){
+		printf("file cannot be opened\n");
+	}
+	printf("contents are \n");
+	do {
+		ch = fgetc(ptr);
+		printf("%c", ch);
+	}while(ch!=EOF);
+	fclose(ptr);
+	return;
+}
+
+void printFileContents(){
+	FILE * filePtr;
+	char fileContents[BUFFER_SIZE];
+	bzero(fileContents,BUFFER_SIZE);
+	char ch;
+	filePtr = fopen("./test.txt","r");
+	if (NULL == filePtr){
+		printf("file cannot be opened\n");
+	}
+	printf("contents of file are: \n");
+
+	while(!feof(filePtr)){
+		ch = fgetc(filePtr);
+		printf("%c", ch);
+		strncat(fileContents,&ch,1);
+	}
+
+	fclose(filePtr);
+	printf("the contnets are\n");
+	printf("%s\n", fileContents);
+	return;
+}
 void handleHttpRequest(int connfd){
 	
 	char dataBuffer[BUFFER_SIZE];
@@ -15,8 +53,26 @@ void handleHttpRequest(int connfd){
 	char *requestedFile;
 	int n;
 
-	char response[9000] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 1000\n\nHello freaking freaking world!";
+	char response[9000] = "HTTP/1.1 200 OK\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1000\n\nHello";
 
+	FILE * filePtr;
+	char fileContents[BUFFER_SIZE];
+	bzero(fileContents,BUFFER_SIZE);
+	char ch;
+	filePtr = fopen("./test.txt","r");
+	if (NULL == filePtr){
+		printf("file cannot be opened\n");
+	}
+	printf("contents of file are: \n");
+
+	while(!feof(filePtr)){
+		strncat(fileContents,&ch,1);
+		ch = fgetc(filePtr);
+	}
+
+	fclose(filePtr);
+	printf("%s\n", fileContents);
+	strcat(response, fileContents);
 	
 	write(connfd, response, strlen(response));
 	return;
@@ -53,6 +109,8 @@ void handleHttpRequest(int connfd){
 
 int main(int argc, char *argv[]){
 	
+	
+	spprint();
 	int port = 1025;	
 	int sockfd;
 
