@@ -23,16 +23,33 @@ void serveClient(int connfd, const char *fileLocation){
 	off_t file_size = st.st_size;
 
 	char file_buff[BUFFER_SIZE];
-	fread(file_buff,sizeof(char),file_size+1,filePtr);
+
+	int n;
+	do{
+		bzero(file_buff, BUFFER_SIZE);
+		n = fread(file_buff,1,BUFFER_SIZE,filePtr);
+		if (n>0){
+			write(connfd, file_buff, n);
+		}
+	}while(n>0);
 	fclose(filePtr);
-	write(connfd, file_buff, file_size);
+	
+//	fread(file_buff,sizeof(char),file_size+1,filePtr);
+//	fclose(filePtr);
+//	write(connfd, file_buff, file_size);
 }
 
 void handleHttpRequest(int connfd){
 	
 	char response[9000] = "HTTP/1.1 200 OK\nContent-Type: text/html;charset=UTF-8\nContent-Length: 1000\n\n";
-	write(connfd, response, strlen(response));
-	serveClient(connfd,"./index.html");
+	char responseHeader[1000] = "HTTP/1.1 200 OK\nContent-Type: ";
+	char *jpg = "image/jpg";
+	char *html = "text/html;charset=UTF-8";
+	char *contentLength = "\nContent-Length: 100000000\n\n";
+	strcat(responseHeader, jpg);
+	strcat(responseHeader, contentLength);
+	write(connfd, responseHeader, strlen(responseHeader));
+	serveClient(connfd,"./output-onlinejpgtools.jpg");
 	return;
 
 }
