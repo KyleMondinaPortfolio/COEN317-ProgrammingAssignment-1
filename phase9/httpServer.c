@@ -73,6 +73,7 @@ void *handleRequestThread(void *arg){
 	char statusCode[40];
 	FILE *filePtr;
 	filePtr = fopen(formattedFile,"r");
+	printf("code after file immediately opened before the if statements)\n");
 	if (NULL == filePtr){
 		perror("unable to open file\n");
 		if (errno == 2){
@@ -85,7 +86,8 @@ void *handleRequestThread(void *arg){
 	else{
 		strcpy(statusCode, "200 OK");
 	}
-	fclose(filePtr);
+	printf("code after file opened after the if statements)\n");
+//	fclose(filePtr);
 	
 	char responseHeader[1000] = "HTTP/1.0 ";
 	strcat(responseHeader, statusCode);
