@@ -161,9 +161,6 @@ void *handleRequestThread(void *thread_args){
 	else if (strncmp(contentType, ".gif", 4)==0){
 		strcat(responseHeader, "image/gif");
 	}
-	else if (strncmp(contentType, ".svg", 4)==0){
-		strcat(responseHeader, "image/gif");
-	}
 	else if (strncmp(contentType, ".png", 4)==0){
 		strcat(responseHeader, "image/png");
 	}
