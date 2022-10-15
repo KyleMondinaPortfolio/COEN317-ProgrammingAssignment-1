@@ -62,7 +62,7 @@ void *handleRequestThread(void *thread_args){
 
 	//check for any bad requests
 	if(strncmp(requestedFile,"//",2)==0){
-		char responseHeader[1000] = "HTTP/1.0 400 OK\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -143,6 +143,22 @@ void *handleRequestThread(void *thread_args){
 
 	//content type parsing
 	char *contentType = strrchr(requestedFile,'.');
+	printf("content type detected is: %s\n", contentType);
+	if (NULL == contentType){
+		printf("file is not supported\n");
+		//invalid file type, sending 400
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		write(connfd, responseHeader, strlen(responseHeader));
+		char formattedFile[BUFFER_SIZE];
+		strcat(formattedFile,document_root);
+		strcat(formattedFile,"/http400.html");
+		serveClient(connfd,formattedFile);
+		close(connfd);
+		pthread_exit(NULL);
+		return NULL;
+
+		
+	}
 	if (strncmp(contentType, ".html", 5)==0){
 		strcat(responseHeader, "text/html;charset=UTF-8");
 	}
@@ -163,6 +179,17 @@ void *handleRequestThread(void *thread_args){
 	}
 	else if (strncmp(contentType, ".png", 4)==0){
 		strcat(responseHeader, "image/png");
+	}else{
+		//invalid file type, sending 400
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		write(connfd, responseHeader, strlen(responseHeader));
+		char formattedFile[BUFFER_SIZE];
+		strcat(formattedFile,document_root);
+		strcat(formattedFile,"/http400.html");
+		serveClient(connfd,formattedFile);
+		close(connfd);
+		pthread_exit(NULL);
+		return NULL;
 	}
 	
 	//content length addition
