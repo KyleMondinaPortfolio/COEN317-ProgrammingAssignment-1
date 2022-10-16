@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <pthread.h>
 #include <errno.h>
+#include <time.h>
 #define MAX 8000
 #define BUFFER_SIZE 8000
 
@@ -57,12 +58,31 @@ void *handleRequestThread(void *thread_args){
 	bzero(requestBuffer,BUFFER_SIZE);
 	read(connfd, requestBuffer, sizeof(requestBuffer));
 
+	//Log the client request on the server's console log
+	printf("Server recieved client request\n");
+	printf("Client Request Header:\n");
+	printf("%s\n",requestBuffer);
+
+	//get the time from the server
+	char timestr[200];
+	time_t now = time(0);
+	struct tm tm = *gmtime(&now);
+	strftime(timestr, 200, "%a, %d %b %Y %H:%M:%S %Z", &tm);
+	printf("Server time: %s\n", timestr);
+
 	char *httpMethod = strtok(requestBuffer, " ");	
 	char *requestedFile = strtok(NULL, " ");
 
 	//check for any bad requests
 	if(strncmp(requestedFile,"//",2)==0){
-		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
+		//strcat(responseHeader,"Date: ");
+		//strcat(responseHeader,timestr);
+		//strcat(responseHeader,"\n\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -76,7 +96,14 @@ void *handleRequestThread(void *thread_args){
 
 	//first handle the default / loading page
 	if(strcmp(requestedFile,"/")==0){
-		char responseHeader[1000] = "HTTP/1.0 200 OK\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 200 OK\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
+		//strcat(responseHeader,"Date: ");
+		//strcat(responseHeader,timestr);
+		//strcat(responseHeader,"\n\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -111,12 +138,19 @@ void *handleRequestThread(void *thread_args){
 	char responseHeader[1000] = "HTTP/1.0 ";
 	strcat(responseHeader, statusCode);
 	strcat(responseHeader, "\nContent-Type: ");
-	char *contentLength = "\nContent-Length: 100000000\n\n";
+	char *contentLength = "\nContent-Length: 100000000\r\n";
 
 	//handle error codes 404 and 403
 	if(strcmp(statusCode,"404 Not Found")==0){
 		printf("Server Error, file requested resulted in: %s\n", statusCode);
-		char responseHeader[1000] = "HTTP/1.0 404 Not Found\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 404 Not Found\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
+		//strcat(responseHeader,"Date: ");
+		//strcat(responseHeader,timestr);
+		//strcat(responseHeader,"\n\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -129,7 +163,14 @@ void *handleRequestThread(void *thread_args){
 
 	}else if(strcmp(statusCode,"403 Forbidden")==0){
 		printf("Server Error, file requested resulted in: %s\n", statusCode);
-		char responseHeader[1000] = "HTTP/1.0 403 Forbidden\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 403 Forbidden\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
+		//strcat(responseHeader,"Date: ");
+		//strcat(responseHeader,timestr);
+		//strcat(responseHeader,"\n\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -147,7 +188,14 @@ void *handleRequestThread(void *thread_args){
 	if (NULL == contentType){
 		printf("file is not supported\n");
 		//invalid file type, sending 400
-		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+	
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
+		//strcat(responseHeader,"Date: ");
+		//strcat(responseHeader,timestr);
+		//strcat(responseHeader,"\n\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -181,7 +229,11 @@ void *handleRequestThread(void *thread_args){
 		strcat(responseHeader, "image/png");
 	}else{
 		//invalid file type, sending 400
-		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\n\n";
+		char responseHeader[1000] = "HTTP/1.0 400 Bad Request\nContent-Type: text/html;charset=UTF-8\nContent-Length: 100000000\r\n";
+
+		strcat(responseHeader,"Date: ");
+		strcat(responseHeader,timestr);
+		strcat(responseHeader,"\r\n\r\n");
 		write(connfd, responseHeader, strlen(responseHeader));
 		char formattedFile[BUFFER_SIZE];
 		strcat(formattedFile,document_root);
@@ -193,7 +245,10 @@ void *handleRequestThread(void *thread_args){
 	}
 	
 	//content length addition
-	strcat(responseHeader,"\nContent-Length: 100000000\n\n"); 
+	strcat(responseHeader,"\nContent-Length: 100000000\r\n"); 
+	strcat(responseHeader,"Date: ");
+	strcat(responseHeader,timestr);
+	strcat(responseHeader,"\r\n\r\n");
 	write(connfd, responseHeader, strlen(responseHeader));
 
 	//serve the file
